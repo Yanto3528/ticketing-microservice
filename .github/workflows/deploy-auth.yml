@@ -34,3 +34,11 @@ jobs:
         uses: docker/login-action@v1
       - name: Push image to docker hub
         run: docker push yantolee3528/ticketing-auth
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      - name: Switch kubectl context to digital ocean k8s cluster
+        run: doctl kubernetes cluster kubeconfig save ticketing
+      - name: Update auth-depl deployment
+        run: kubectl rollout restart deployment auth-depl
