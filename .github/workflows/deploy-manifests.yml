@@ -1,13 +1,13 @@
 # This is a basic workflow to help you get started with Actions
 
-name: deploy-auth
+name: deploy-manifests
 
 # Controls when the workflow will run
 on:
   push:
     branches: [main]
     paths:
-      - 'auth/**'
+      - 'infra/**'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -23,22 +23,11 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-
-      # Runs a single command using the runners shell
-      - name: Build auth docker image
-        run: cd auth && docker build -t yantolee3528/ticketing-auth .
-      - name: Login to docker hub
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-        uses: docker/login-action@v1
-      - name: Push image to docker hub
-        run: docker push yantolee3528/ticketing-auth
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
       - name: Switch kubectl context to digital ocean k8s cluster
         run: doctl kubernetes cluster kubeconfig save ticketing
-      - name: Update auth-depl deployment
-        run: kubectl rollout restart deployment auth-depl
+      - name: Apply all k8s config
+        run: kubectl apply -f infra/k8s && kubectl apply -f infra/k8s-prod
