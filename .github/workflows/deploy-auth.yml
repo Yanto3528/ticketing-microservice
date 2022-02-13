@@ -28,9 +28,10 @@ jobs:
       - name: Build auth docker image
         run: cd auth && docker build -t yantolee3528/ticketing-auth .
       - name: Login to docker
-        run: docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+        shell: bash
         env:
           DOCKER_USERNAME: ${ { secrets.DOCKER_USERNAME } }
           DOCKER_PASSWORD: ${ { secrets.DOCKER_PASSWORD } }
+        run: docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
       - name: Push image to docker hub
         run: docker push yantolee3528/ticketing-auth
